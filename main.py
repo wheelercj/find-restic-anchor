@@ -14,7 +14,9 @@ class File:
 def main():
     assert os.environ["RESTIC_REPOSITORY"]
     assert os.environ["RESTIC_PASSWORD"]
+    # more environment variables are necessary, but which ones depend on how you use Restic
 
+    # get the snapshots
     try:
         snapshots_result: subprocess.CompletedProcess = subprocess.run(
             ["restic", "snapshots", "--json"],
@@ -28,13 +30,18 @@ def main():
     if snapshots_result.stderr:
         raise ValueError(f"`restic snapshots` gave a truthy stderr: {snapshots_result.stderr}")
 
+    # convert the string of snapshots to a list of dictionaries
     try:
+        assert isinstance(snapshots_result.stdout, str)
         snapshots: list[dict[str, Any]] = json.loads(snapshots_result.stdout)
     except json.decoder.JSONDecodeError:
         raise RuntimeError(f"Failed to decode JSON. {snapshots_result.stdout = }")
+    
+    # get the IDs of the last two snapshots
     last_id: str = snapshots[-1]["id"]
     second_to_last_id: str = snapshots[-2]["id"]
 
+    # get the difference between the last two snapshots
     try:
         diff_result: subprocess.CompletedProcess = subprocess.run(
             ["restic", "diff", second_to_last_id, last_id, "--json"],
@@ -48,18 +55,21 @@ def main():
     if diff_result.stderr:
         raise ValueError(f"`restic diff` gave a truthy stderr: {diff_result.stderr}")
 
+    assert isinstance(diff_result.stdout, str)
     diff_lines: list[str] = diff_result.stdout.strip().splitlines()
 
+    # get the paths of all new and modified files
     file_paths: list[str] = []
     for line in diff_lines:
         entry: dict[str, str] = json.loads(line)
         if entry["message_type"] != "change":
             continue
-        if entry["modifier"] == "-":
+        if entry["modifier"] == "-":  # ignore files that were removed in the latest snapshot
             continue
 
         file_paths.append(entry["path"])
 
+    # get the byte count of each file
     files: list[File] = []
     for path in file_paths:
         if os.path.exists(path):
