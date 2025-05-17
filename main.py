@@ -1,7 +1,14 @@
 import json
 import os
 import subprocess
+from dataclasses import dataclass
 from typing import Any
+
+
+@dataclass
+class File:
+    path: str
+    byte_count: int
 
 
 def main():
@@ -53,15 +60,17 @@ def main():
 
         file_paths.append(entry["path"])
 
-    largest_size: int = 0
-    largest_path: str = "(none)"
+    files: list[File] = []
     for path in file_paths:
-        size: int = os.stat(path).st_size
-        if size > largest_size:
-            largest_size = size
-            largest_path = path
+        if os.path.exists(path):
+            files.append(File(path=path, byte_count=os.stat(path).st_size))
 
-    print(f"{largest_path}\n{largest_size} bytes")
+    files = sorted(files, key=lambda file: file.byte_count)
+
+    print("bytes\t\tfile")
+    print("-----------------------------")
+    for file in files:
+        print(f"{file.byte_count}\t\t{file.path}")
 
 
 if __name__ == "__main__":
