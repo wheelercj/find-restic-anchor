@@ -30,12 +30,14 @@ def main():
     if snapshots_result.stderr:
         raise ValueError(f"`restic snapshots` gave a truthy stderr: {snapshots_result.stderr}")
 
+    assert isinstance(snapshots_result.stdout, bytes), f"{type(snapshots_result.stdout) = }"
+    snapshots_s: str = snapshots_result.stdout.decode()
+
     # convert the string of snapshots to a list of dictionaries
     try:
-        assert isinstance(snapshots_result.stdout, str)
-        snapshots: list[dict[str, Any]] = json.loads(snapshots_result.stdout)
+        snapshots: list[dict[str, Any]] = json.loads(snapshots_s)
     except json.decoder.JSONDecodeError:
-        raise RuntimeError(f"Failed to decode JSON. {snapshots_result.stdout = }")
+        raise RuntimeError(f"Failed to decode JSON. {snapshots_s = }")
     
     # get the IDs of the last two snapshots
     last_id: str = snapshots[-1]["id"]
@@ -55,8 +57,8 @@ def main():
     if diff_result.stderr:
         raise ValueError(f"`restic diff` gave a truthy stderr: {diff_result.stderr}")
 
-    assert isinstance(diff_result.stdout, str)
-    diff_lines: list[str] = diff_result.stdout.strip().splitlines()
+    assert isinstance(diff_result.stdout, bytes), f"{type(diff_result.stdout) = }"
+    diff_lines: list[str] = diff_result.stdout.decode().strip().splitlines()
 
     # get the paths of all new and modified files
     file_paths: list[str] = []
