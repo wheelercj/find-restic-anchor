@@ -20,8 +20,10 @@ bytes       file
 5242880     /home/chris/Documents/backups/Firefox bookmarks/2025-05-16-places.sqlite
 ```
 
-Files are sorted by increasing bytes.
+Files are ordered by increasing bytes.
 
-Find-restic-anchor is for when a backup takes longer and/or is larger than you expect and you want to know why. It only lists files that were added or changed, and not files that were removed by the backup. Also, find-restic-backup doesn't list files that don't exist anymore, and it shows the current size of the files, not the size they were when they were backed up.
+Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged. Also, find-restic-backup doesn't list files that don't exist anymore, and it shows the current size of the files, not necessarily the size they were when they were backed up.
 
-You could use `restic ls --long latest` if you want to see the size of every file in the latest snapshot including ones that didn't change, but that list will probably be many times longer.
+You could use [`restic ls --long latest --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
+
+Find-restic-anchor uses [environment variables](https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables).
