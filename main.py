@@ -38,7 +38,7 @@ def main():
         snapshots: list[dict[str, Any]] = json.loads(snapshots_s)
     except json.decoder.JSONDecodeError:
         raise RuntimeError(f"Failed to decode JSON. {snapshots_s = }")
-    
+
     # get the IDs of the last two snapshots
     last_id: str = snapshots[-1]["id"]
     second_to_last_id: str = snapshots[-2]["id"]
