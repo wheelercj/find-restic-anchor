@@ -12,8 +12,8 @@ class File:
 
 
 def main():
-    assert os.environ["RESTIC_REPOSITORY"]
-    assert os.environ["RESTIC_PASSWORD"]
+    assert "RESTIC_REPOSITORY" in os.environ
+    assert "RESTIC_PASSWORD" in os.environ
     # more environment variables are necessary, but which ones depend on how you use Restic
 
     # get the snapshots
