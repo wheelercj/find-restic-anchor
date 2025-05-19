@@ -22,7 +22,7 @@ bytes       file
 
 Files are ordered by increasing bytes.
 
-Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged. Also, find-restic-anchor doesn't list files that don't exist anymore, and it shows the current size of the files, not necessarily the size they were when they were backed up.
+Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged. Also, find-restic-anchor doesn't list files that don't exist locally anymore, and it shows the current local size of the files, not necessarily the size they were when they were backed up.
 
 You could use [`restic ls --long latest --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
 
