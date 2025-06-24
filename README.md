@@ -3,7 +3,7 @@
 Find the largest files in your latest [Restic](https://restic.net/) backup.
 
 ```
-$ python3 find-restic-anchor/main.py
+$ uvx --from git+https://github.com/wheelercj/find-restic-anchor find-restic-anchor
 bytes       file
 -----------------------------
 0           /home/chris/Documents/programming/GitHub-bot/utils/__init__.py
