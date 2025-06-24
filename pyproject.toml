@@ -7,7 +7,7 @@ requires-python = ">=3.13"
 dependencies = []
 
 [project.scripts]
-find-restic-anchor = "find_restic_anchor.main:main"
+find-restic-anchor = "main:main"
 
 [dependency-groups]
 dev = ["ruff>=0.12.0"]
