@@ -2,8 +2,8 @@
 
 Find the largest files in your latest [Restic](https://restic.net/) backup.
 
-```
-$ uvx --from git+https://github.com/wheelercj/find-restic-anchor find-restic-anchor
+```bash
+$ find-restic-anchor
 bytes       file
 -----------------------------
 0           /home/chris/Documents/programming/GitHub-bot/utils/__init__.py
@@ -21,6 +21,8 @@ bytes       file
 ```
 
 Files are ordered by increasing bytes.
+
+You can install with `uv tool install git+https://github.com/wheelercj/find-restic-anchor`
 
 Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged. Also, find-restic-anchor doesn't list files that don't exist locally anymore, and it shows the current local size of the files, not necessarily the size they were when they were backed up.
 
