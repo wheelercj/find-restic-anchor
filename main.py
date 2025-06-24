@@ -1,6 +1,7 @@
 import json
 import os
 import subprocess
+import sys
 from dataclasses import dataclass
 from typing import Any
 
@@ -12,14 +13,23 @@ class File:
 
 
 def main():
-    err_msg: str = (
-        "Define one of the environment variables shown in the error above. Other environment"
-        " variables are also necessary, but which ones depends on how you use Restic. For more"
-        " details, see"
-        " https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables"
-    )
-    assert "RESTIC_REPOSITORY" in os.environ or "RESTIC_REPOSITORY_FILE" in os.environ, err_msg
-    assert "RESTIC_PASSWORD" in os.environ or "RESTIC_PASSWORD_FILE" in os.environ, err_msg
+    has_repo: bool = "RESTIC_REPOSITORY" in os.environ or "RESTIC_REPOSITORY_FILE" in os.environ
+    has_password: bool = "RESTIC_PASSWORD" in os.environ or "RESTIC_PASSWORD_FILE" in os.environ
+    if not has_repo or not has_password:
+        err_msg: list[str] = ["Error: you must define environment variables including"]
+        if not has_repo:
+            err_msg.append(" (either RESTIC_REPOSITORY or RESTIC_REPOSITORY_FILE)")
+        if not has_repo and not has_password:
+            err_msg.append(" and")
+        if not has_password:
+            err_msg.append(" (either RESTIC_PASSWORD or RESTIC_PASSWORD_FILE)")
+        err_msg.append(". Other environment variables are also necessary, but which ones depends")
+        err_msg.append(" on how you use Restic. For more details, see")
+        err_msg.append(
+            " https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables"
+        )
+        print("".join(err_msg))
+        sys.exit(1)
 
     # get the snapshots
     try:
