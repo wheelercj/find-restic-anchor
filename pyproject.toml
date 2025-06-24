@@ -1,0 +1,23 @@
+[project]
+name = "find-restic-anchor"
+version = "0.1.0"
+description = "Find the largest files in your latest Restic backup."
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = []
+
+[dependency-groups]
+dev = ["ruff>=0.12.0"]
+
+# Configuring Ruff: https://docs.astral.sh/ruff/configuration/
+[tool.ruff] # https://docs.astral.sh/ruff/settings/
+line-length = 99
+fix = true
+
+[tool.ruff.lint] # https://docs.astral.sh/ruff/settings/#lint
+# Rules: https://docs.astral.sh/ruff/rules/
+extend-select = ["I"]
+
+[tool.ruff.lint.isort] # https://docs.astral.sh/ruff/settings/#lintisort
+force-single-line = true # prevents merge conflicts
+lines-after-imports = 2
