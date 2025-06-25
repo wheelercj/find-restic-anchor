@@ -35,3 +35,13 @@ Find-restic-anchor uses [environment variables](https://restic.readthedocs.io/en
 - Download or copy [main.py](https://github.com/wheelercj/find-restic-anchor/blob/main/main.py) and run it. There are no 3rd party dependencies except that a `restic` command must exist.
 - `uv tool install git+https://github.com/wheelercj/find-restic-anchor@main` and then `find-restic-anchor`
 - `git clone https://github.com/wheelercj/find-restic-anchor.git` and then `python3 find-restic-anchor/main.py`
+
+## How does it work?
+
+1. `restic snapshots --json` to get the list of snapshots
+2. From the list of snapshots, get the IDs of the last two snapshots
+3. `restic diff --json` with those two IDs to get the changes made in the latest snapshot
+4. From the diff, get the paths of files that were added or modified
+5. Using those paths, get the byte count of each file
+6. Order the paths by increasing file byte count
+7. Print the paths and byte counts
