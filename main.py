@@ -55,6 +55,9 @@ def main():
         raise RuntimeError(f"Failed to decode JSON. {snapshots_s = }")
 
     # get the IDs of the last two snapshots
+    if len(snapshots) < 2:
+        print("Error: this script only works when there are at least 2 snapshots")
+        sys.exit(1)
     last_id: str = snapshots[-1]["id"]
     second_to_last_id: str = snapshots[-2]["id"]
 
