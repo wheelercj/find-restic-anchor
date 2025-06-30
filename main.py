@@ -119,7 +119,7 @@ def main():
         else:
             snapshot_files[Path(file_obj["path"])] = 0
 
-    print_status("Getting the byte count of each file in the diff...")
+    print_status("Getting the size of each file in the diff...")
     files: list[File] = []
     for diff_path in diff_file_paths:
         files.append(File(path=diff_path, byte_count=snapshot_files[diff_path]))
