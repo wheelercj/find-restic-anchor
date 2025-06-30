@@ -114,10 +114,12 @@ def main():
         if "path" not in file_obj:
             continue
 
+        path: Path = Path(file_obj["path"])
+
         if "size" in file_obj:
-            snapshot_files[Path(file_obj["path"])] = file_obj["size"]
+            snapshot_files[path] = file_obj["size"]
         else:
-            snapshot_files[Path(file_obj["path"])] = 0
+            snapshot_files[path] = 0
 
     print_status("Getting the size of each file in the diff...")
     files: list[File] = []
