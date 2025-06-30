@@ -110,15 +110,18 @@ def main():
     print_status("Getting the size of each file in the latest snapshot...")
     snapshot_files: dict[Path, int] = dict()
     for ls_line in ls_lines:
-        file_obj: dict[str, Any] = json.loads(ls_line)
-        if "path" not in file_obj:
+        line_dict: dict[str, Any] = json.loads(ls_line)
+        if "path" not in line_dict:
+            # It's not a file or folder. It might be a snapshot summary.
             continue
 
-        path: Path = Path(file_obj["path"])
+        path: Path = Path(line_dict["path"])
 
-        if "size" in file_obj:
-            snapshot_files[path] = file_obj["size"]
+        if "size" in line_dict:
+            snapshot_files[path] = line_dict["size"]
         else:
+            # It's a folder. Even empty folders take up some space, but it's close enough to 0 that
+            # it shouldn't matter in this case.
             snapshot_files[path] = 0
 
     print_status("Getting the size of each file in the diff...")
