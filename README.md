@@ -22,9 +22,9 @@ bytes       file
 
 Files are ordered by increasing bytes.
 
-Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged. Also, find-restic-anchor doesn't list files that don't exist locally anymore, and it shows the current local size of the files, not necessarily the size they were when they were backed up.
+Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged.
 
-You could use [`restic ls --long latest --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
+You could use [`restic ls latest --long --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
 
 Find-restic-anchor uses [environment variables](https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables).
 
@@ -42,6 +42,7 @@ Find-restic-anchor uses [environment variables](https://restic.readthedocs.io/en
 2. From the list of snapshots, get the IDs of the last two snapshots
 3. `restic diff --json` with those two IDs to get the changes made in the latest snapshot
 4. From the diff, get the paths of files that were added or modified
-5. Using those paths, get the byte count of each file
-6. Order the paths by increasing file byte count
-7. Print the paths and byte counts
+5. `restic ls latest --long --json` to get the latest snapshot's file paths and sizes
+6. Using those two sets of paths, get the size of each file added or modified in the latest snapshot
+7. Order the paths by increasing file size
+8. Print the paths and sizes
