@@ -3,12 +3,13 @@ import os
 import subprocess
 import sys
 from dataclasses import dataclass
+from pathlib import Path
 from typing import Any
 
 
 @dataclass
 class File:
-    path: str
+    path: Path
     byte_count: int
 
 
@@ -79,7 +80,7 @@ def main():
     diff_lines: list[str] = diff_result.stdout.decode().strip().splitlines()
 
     # get the paths of all new and modified files
-    file_paths: list[str] = []
+    file_paths: list[Path] = []
     for line in diff_lines:
         entry: dict[str, str] = json.loads(line)
         if entry["message_type"] != "change":
@@ -87,7 +88,7 @@ def main():
         if entry["modifier"] == "-":  # ignore files that were removed in the latest snapshot
             continue
 
-        file_paths.append(entry["path"])
+        file_paths.append(Path(entry["path"]))
 
     # get the byte count of each file
     files: list[File] = []
