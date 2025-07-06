@@ -1,6 +1,6 @@
 # find-restic-anchor
 
-Find the largest files in your latest [Restic](https://restic.net/) backup.
+When a [Restic](https://restic.net/) backup takes longer than you expect, find-restic-anchor can help you figure out why by showing the size of each new and modified file in the latest snapshot.
 
 ```bash
 $ find-restic-anchor
@@ -22,7 +22,7 @@ bytes       file
 
 Files are ordered by increasing bytes.
 
-Find-restic-anchor is for when a backup is larger than you expect and you want to know why. It only lists files that were added or changed, not files that were removed or unchanged.
+Find-restic-anchor only lists files that were added or changed, not files that were removed or unchanged.
 
 You could use [`restic ls latest --long --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
 
