@@ -20,21 +20,21 @@ bytes       file
 5242880     /home/chris/Documents/backups/Firefox bookmarks/2025-05-16-places.sqlite
 ```
 
-Files are ordered by increasing bytes.
+Files are ordered by increasing bytes. This script uses [environment variables](https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables).
 
-Find-restic-anchor only lists files that were added or changed, not files that were removed or unchanged.
+Find-restic-anchor only lists files that were added or changed, not files that were removed or unchanged. You could use [`restic ls latest --long --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
 
-You could use [`restic ls latest --long --sort size`](https://restic.readthedocs.io/en/stable/045_working_with_repos.html#listing-files-in-a-snapshot) if you want to see the size of every file in the latest snapshot including ones that didn't change, but that won't answer the question of why the latest backup was different.
-
-Find-restic-anchor uses [environment variables](https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables).
+Large files being backed up is not the only possible reason a backup took longer than normal, but this script can rule out the possibility if nothing else.
 
 ## Install
 
 3 ways to install:
 
-- Download or copy [main.py](https://github.com/wheelercj/find-restic-anchor/blob/main/main.py) and run it. There are no 3rd party dependencies except that a `restic` command must exist.
+- Download or copy [main.py](https://github.com/wheelercj/find-restic-anchor/blob/main/main.py) and run it.
 - `uv tool install git+https://github.com/wheelercj/find-restic-anchor@main` and then `find-restic-anchor`
 - `git clone https://github.com/wheelercj/find-restic-anchor.git` and then `python3 find-restic-anchor/main.py`
+
+There are no 3rd party dependencies except that a `restic` command must exist.
 
 ## How does it work?
 
