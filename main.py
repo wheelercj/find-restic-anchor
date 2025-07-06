@@ -108,7 +108,7 @@ def main():
     ls_lines: list[str] = ls_result.stdout.decode().strip().splitlines()
 
     print_status("Getting the size of each file in the latest snapshot...")
-    snapshot_files: dict[Path, int] = dict()
+    snapshot_files_sizes: dict[Path, int] = dict()
     for ls_line in ls_lines:
         line_dict: dict[str, Any] = json.loads(ls_line)
         if "path" not in line_dict:
@@ -118,16 +118,21 @@ def main():
         path: Path = Path(line_dict["path"])
 
         if "size" in line_dict:
-            snapshot_files[path] = line_dict["size"]
+            snapshot_files_sizes[path] = line_dict["size"]
         else:
             # It's a folder. Even empty folders take up some space, but it's close enough to 0 that
             # it shouldn't matter in this case.
-            snapshot_files[path] = 0
+            snapshot_files_sizes[path] = 0
 
     print_status("Getting the size of each file in the diff...")
     files: list[File] = []
     for diff_path in diff_file_paths:
-        files.append(File(path=diff_path, byte_count=snapshot_files[diff_path]))
+        files.append(
+            File(
+                path=diff_path,
+                byte_count=snapshot_files_sizes[diff_path],
+            )
+        )
 
     print_status("Sorting the files by size...")
     files = sorted(files, key=lambda file: file.byte_count)
