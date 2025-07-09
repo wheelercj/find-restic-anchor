@@ -1,3 +1,4 @@
+import argparse
 import json
 import os
 import subprocess
@@ -13,7 +14,29 @@ class File:
     byte_count: int
 
 
+human_readable: bool = False
+
+
+def parse_args():
+    global human_readable
+
+    parser = argparse.ArgumentParser(
+        prog="find-restic-anchor",
+        description="Figure out why your latest Restic backup took longer.",
+    )
+
+    parser.add_argument(
+        "--human-readable", action="store_true", help="print sizes in human readable format"
+    )
+
+    args = parser.parse_args()
+
+    human_readable = args.human_readable
+
+
 def main():
+    parse_args()
+
     has_repo: bool = "RESTIC_REPOSITORY" in os.environ or "RESTIC_REPOSITORY_FILE" in os.environ
     has_password: bool = "RESTIC_PASSWORD" in os.environ or "RESTIC_PASSWORD_FILE" in os.environ
     if not has_repo or not has_password:
@@ -140,8 +163,16 @@ def main():
     print(end="\r                                                                              \r")
     print("bytes\t\tfile")
     print("-----------------------------")
-    for file in files:
-        print(f"{file.byte_count}\t\t{file.path}")
+    if human_readable:
+        for file in files:
+            byte_count: str = humanize(file.byte_count)
+            if len(byte_count) >= 8:
+                print(f"{byte_count}\t{file.path}")
+            else:
+                print(f"{byte_count}\t\t{file.path}")
+    else:
+        for file in files:
+            print(f"{file.byte_count}\t\t{file.path}")
 
 
 step: int = 1
@@ -159,6 +190,31 @@ def print_status(msg: str) -> None:
     )
 
     step += 1
+
+
+def humanize(byte_count: int) -> str:
+    if byte_count < 2**10:
+        return f"{byte_count} B"
+    elif byte_count < 2**20:
+        kib: float = byte_count / (2**10)
+        return f"{kib:.3f} KiB"
+    elif byte_count < 2**30:
+        mib: float = byte_count / (2**20)
+        return f"{mib:.3f} MiB"
+    elif byte_count < 2**40:
+        gib: float = byte_count / (2**30)
+        return f"{gib:.3f} GiB"
+    elif byte_count < 2**50:
+        tib: float = byte_count / (2**40)
+        return f"{tib:.3f} TiB"
+    elif byte_count < 2**60:
+        pib: float = byte_count / (2**50)
+        return f"{pib:.3f} PiB"
+    elif byte_count < 2**70:
+        eib: float = byte_count / (2**60)
+        return f"{eib:.3f} EiB"
+    else:
+        return "∞"
 
 
 if __name__ == "__main__":
