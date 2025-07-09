@@ -160,6 +160,8 @@ def main():
     print_status("Sorting the files by size...")
     files = sorted(files, key=lambda file: file.byte_count)
 
+    total_byte_count: int = 0
+
     print(end="\r                                                                              \r")
     print("bytes\t\tfile")
     print("-----------------------------")
@@ -170,9 +172,17 @@ def main():
                 print(f"{byte_count}\t{file.path}")
             else:
                 print(f"{byte_count}\t\t{file.path}")
+            total_byte_count += file.byte_count
     else:
         for file in files:
             print(f"{file.byte_count}\t\t{file.path}")
+            total_byte_count += file.byte_count
+
+    print("-----------------------------")
+    if human_readable:
+        print(f"Total: {humanize(total_byte_count)}")
+    else:
+        print(f"Total: {total_byte_count} bytes")
 
 
 step: int = 1
