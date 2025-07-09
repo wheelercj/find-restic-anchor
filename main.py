@@ -22,7 +22,12 @@ def parse_args():
 
     parser = argparse.ArgumentParser(
         prog="find-restic-anchor",
-        description="Figure out why your latest Restic backup took longer.",
+        description="""
+            find-restic-anchor can help you figure out why your latest Restic backup took longer
+            than normal by listing only the files that were added or changed in the latest
+            snapshot, and their sizes. Files are ordered by increasing bytes. More details:
+            https://github.com/wheelercj/find-restic-anchor
+            """,
     )
 
     parser.add_argument(
