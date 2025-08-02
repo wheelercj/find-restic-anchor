@@ -52,7 +52,8 @@ def parse_args():
         sys.exit(1)
     elif snapshot_id_1 and snapshot_id_2:
         if "latest" == snapshot_id_1 or "latest" == snapshot_id_2:
-            print("The special snapshot ID `latest` is not supported")
+            print("Error: the special snapshot ID `latest` is not supported")
+            sys.exit(1)
         total_steps = 7
     else:
         total_steps = 9
