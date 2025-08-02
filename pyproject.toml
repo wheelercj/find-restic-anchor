@@ -1,6 +1,6 @@
 [project]
 name = "find-restic-anchor"
-version = "0.1.9"
+version = "0.1.10"
 description = "Figure out why a Restic backup took longer than normal."
 readme = "README.md"
 requires-python = ">=3.13"
