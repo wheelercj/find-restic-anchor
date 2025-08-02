@@ -14,21 +14,30 @@ class File:
     byte_count: int
 
 
+snapshot_id_1: str = ""
+snapshot_id_2: str = ""
 human_readable: bool = False
 
 
 def parse_args():
+    global snapshot_id_1
+    global snapshot_id_2
     global human_readable
+
+    global total_steps
 
     parser = argparse.ArgumentParser(
         prog="find-restic-anchor",
         description="""
-            find-restic-anchor can help you figure out why your latest Restic backup took longer
-            than normal by listing only the files that were added or changed in the latest
-            snapshot, and their sizes. Files are ordered by increasing bytes. More details:
+            find-restic-anchor can help you figure out why a Restic backup took longer than normal
+            by listing only the files that were added or changed in a snapshot, and their sizes.
+            Files are ordered by increasing bytes. More details:
             https://github.com/wheelercj/find-restic-anchor
             """,
     )
+
+    parser.add_argument("snapshot_id_1", type=str, nargs="?")
+    parser.add_argument("snapshot_id_2", type=str, nargs="?")
 
     parser.add_argument(
         "--human-readable", action="store_true", help="print sizes in human readable format"
@@ -36,10 +45,25 @@ def parse_args():
 
     args = parser.parse_args()
 
+    snapshot_id_1 = args.snapshot_id_1
+    snapshot_id_2 = args.snapshot_id_2
+    if bool(snapshot_id_1) != bool(snapshot_id_2):
+        print("Error: expected zero or two snapshot IDs, not one")
+        sys.exit(1)
+    elif snapshot_id_1 and snapshot_id_2:
+        if "latest" == snapshot_id_1 or "latest" == snapshot_id_2:
+            print("The special snapshot ID `latest` is not supported")
+        total_steps = 7
+    else:
+        total_steps = 9
+
     human_readable = args.human_readable
 
 
 def main():
+    global snapshot_id_1
+    global snapshot_id_2
+
     parse_args()
 
     has_repo: bool = "RESTIC_REPOSITORY" in os.environ or "RESTIC_REPOSITORY_FILE" in os.environ
@@ -60,40 +84,42 @@ def main():
         print("".join(err_msg))
         sys.exit(1)
 
-    print_status("Getting the list of snapshots...")
-    try:
-        snapshots_result: subprocess.CompletedProcess = subprocess.run(
-            ["restic", "snapshots", "--json"],
-            capture_output=True,
-            check=True,
-        )
-    except subprocess.CalledProcessError as err:
-        if err.returncode == 1:
-            raise RuntimeError(json.loads(err.stderr)["message"])
-        raise
-    if snapshots_result.stderr:
-        raise ValueError(f"`restic snapshots` gave a truthy stderr: {snapshots_result.stderr}")
+    if not snapshot_id_1 or not snapshot_id_2:
+        print_status("Getting the list of snapshots...")
+        try:
+            snapshots_result: subprocess.CompletedProcess = subprocess.run(
+                ["restic", "snapshots", "--json"],
+                capture_output=True,
+                check=True,
+            )
+        except subprocess.CalledProcessError as err:
+            if err.returncode == 1:
+                raise RuntimeError(json.loads(err.stderr)["message"])
+            raise
+        if snapshots_result.stderr:
+            raise ValueError(f"`restic snapshots` gave a truthy stderr: {snapshots_result.stderr}")
 
-    assert isinstance(snapshots_result.stdout, bytes), f"{type(snapshots_result.stdout) = }"
-    snapshots_s: str = snapshots_result.stdout.decode()
+        assert isinstance(snapshots_result.stdout, bytes), f"{type(snapshots_result.stdout) = }"
+        snapshots_s: str = snapshots_result.stdout.decode()
 
-    print_status("Loading snapshots list JSON...")
-    try:
-        snapshots: list[dict[str, Any]] = json.loads(snapshots_s)
-    except json.decoder.JSONDecodeError:
-        raise RuntimeError(f"Failed to decode JSON. {snapshots_s = }")
+        print_status("Loading snapshots list JSON...")
+        try:
+            snapshots: list[dict[str, Any]] = json.loads(snapshots_s)
+        except json.decoder.JSONDecodeError:
+            raise RuntimeError(f"Failed to decode JSON. {snapshots_s = }")
 
-    # get the IDs of the last two snapshots
-    if len(snapshots) < 2:
-        print("\nError: this script only works when there are at least 2 snapshots")
-        sys.exit(1)
-    last_id: str = snapshots[-1]["id"]
-    second_to_last_id: str = snapshots[-2]["id"]
+        # get the IDs of the last two snapshots
+        if len(snapshots) < 2:
+            print("\nError: this script only works when there are at least 2 snapshots")
+            sys.exit(1)
 
-    print_status("Getting the difference between the last two snapshots...")
+        snapshot_id_1 = snapshots[-2]["id"]
+        snapshot_id_2 = snapshots[-1]["id"]
+
+    print_status("Getting the difference between the snapshots...")
     try:
         diff_result: subprocess.CompletedProcess = subprocess.run(
-            ["restic", "diff", second_to_last_id, last_id, "--json"],
+            ["restic", "diff", snapshot_id_1, snapshot_id_2, "--json"],
             capture_output=True,
             check=True,
         )
@@ -113,15 +139,15 @@ def main():
         entry: dict[str, str] = json.loads(line)
         if entry["message_type"] != "change":
             continue
-        if entry["modifier"] == "-":  # ignore files that were removed in the latest snapshot
+        if entry["modifier"] == "-":  # ignore files that were removed in the snapshot
             continue
 
         diff_file_paths.append(Path(entry["path"]))
 
-    print_status("Getting the latest snapshot's files and folders...")
+    print_status("Getting the snapshot's files and folders...")
     try:
         ls_result: subprocess.CompletedProcess = subprocess.run(
-            ["restic", "ls", "latest", "--long", "--json"],
+            ["restic", "ls", snapshot_id_2, "--long", "--json"],
             capture_output=True,
             check=True,
         )
@@ -135,7 +161,7 @@ def main():
     assert isinstance(ls_result.stdout, bytes), f"{type(ls_result.stdout) = }"
     ls_lines: list[str] = ls_result.stdout.decode().strip().splitlines()
 
-    print_status("Getting the size of each file in the latest snapshot...")
+    print_status("Getting the size of each file in the snapshot...")
     snapshot_files_sizes: dict[Path, int] = dict()
     for ls_line in ls_lines:
         line_dict: dict[str, Any] = json.loads(ls_line)
@@ -191,6 +217,7 @@ def main():
 
 
 step: int = 1
+total_steps: int = 9
 
 
 def print_status(msg: str) -> None:
@@ -199,7 +226,7 @@ def print_status(msg: str) -> None:
     print(
         end=(
             "\r                                                                                 \r"
-            + f"({step}/9) "
+            + f"({step}/{total_steps}) "
             + msg
         )
     )
