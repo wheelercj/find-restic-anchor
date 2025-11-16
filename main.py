@@ -48,11 +48,11 @@ def parse_args():
     snapshot_id_1 = args.snapshot_id_1
     snapshot_id_2 = args.snapshot_id_2
     if bool(snapshot_id_1) != bool(snapshot_id_2):
-        print("Error: expected zero or two snapshot IDs, not one")
+        print("Error: expected zero or two snapshot IDs, not one", file=sys.stderr)
         sys.exit(1)
     elif snapshot_id_1 and snapshot_id_2:
         if "latest" == snapshot_id_1 or "latest" == snapshot_id_2:
-            print("Error: the special snapshot ID `latest` is not supported")
+            print("Error: the special snapshot ID `latest` is not supported", file=sys.stderr)
             sys.exit(1)
         total_steps = 7
     else:
@@ -82,7 +82,7 @@ def main():
         err_msg.append(
             " https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables"
         )
-        print("".join(err_msg))
+        print("".join(err_msg), file=sys.stderr)
         sys.exit(1)
 
     if not snapshot_id_1 or not snapshot_id_2:
@@ -111,7 +111,10 @@ def main():
 
         # get the IDs of the last two snapshots
         if len(snapshots) < 2:
-            print("\nError: this script only works when there are at least 2 snapshots")
+            print(
+                "\nError: this script only works when there are at least 2 snapshots",
+                file=sys.stderr,
+            )
             sys.exit(1)
 
         snapshot_id_1 = snapshots[-2]["id"]
