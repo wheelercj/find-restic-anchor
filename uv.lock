@@ -1,10 +1,10 @@
 version = 1
-revision = 2
+revision = 3
 requires-python = ">=3.13"
 
 [[package]]
 name = "find-restic-anchor"
-version = "0.1.10"
+version = "0.1.11"
 source = { virtual = "." }
 
 [package.dev-dependencies]
