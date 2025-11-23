@@ -2,7 +2,6 @@ import argparse
 import json
 import os
 import subprocess
-import sys
 from dataclasses import dataclass
 from pathlib import Path
 from typing import Any
@@ -48,12 +47,10 @@ def parse_args():
     snapshot_id_1 = args.snapshot_id_1
     snapshot_id_2 = args.snapshot_id_2
     if bool(snapshot_id_1) != bool(snapshot_id_2):
-        print("Error: expected zero or two snapshot IDs, not one", file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit("Error: expected zero or two snapshot IDs, not one")
     elif snapshot_id_1 and snapshot_id_2:
         if "latest" == snapshot_id_1 or "latest" == snapshot_id_2:
-            print("Error: the special snapshot ID `latest` is not supported", file=sys.stderr)
-            sys.exit(1)
+            raise SystemExit("Error: the special snapshot ID `latest` is not supported")
         total_steps = 7
     else:
         total_steps = 9
@@ -82,8 +79,7 @@ def main():
         err_msg.append(
             " https://restic.readthedocs.io/en/stable/040_backup.html#environment-variables"
         )
-        print("".join(err_msg), file=sys.stderr)
-        sys.exit(1)
+        raise SystemExit("".join(err_msg))
 
     if not snapshot_id_1 or not snapshot_id_2:
         print_status("Getting the list of snapshots...")
@@ -111,11 +107,7 @@ def main():
 
         # get the IDs of the last two snapshots
         if len(snapshots) < 2:
-            print(
-                "\nError: this script only works when there are at least 2 snapshots",
-                file=sys.stderr,
-            )
-            sys.exit(1)
+            raise SystemExit("\nError: this script only works when there are at least 2 snapshots")
 
         snapshot_id_1 = snapshots[-2]["id"]
         snapshot_id_2 = snapshots[-1]["id"]
