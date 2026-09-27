@@ -10,7 +10,7 @@ dependencies = []
 find-restic-anchor = "main:main"
 
 [dependency-groups]
-dev = ["ruff>=0.12.0"]
+dev = ["ruff>=0.16.9"]
 
 # Configuring Ruff: https://docs.astral.sh/ruff/configuration/
 [tool.ruff] # https://docs.astral.sh/ruff/settings/
